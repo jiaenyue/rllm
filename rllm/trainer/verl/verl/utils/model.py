@@ -285,7 +285,15 @@ def _load_hf_model(config, model_config, is_value_model, local_cache_path):
     architectures = getattr(model_config, "architectures", [])
     local_cache_path = os.path.expanduser(local_cache_path)
 
-    if config.model.path.startswith("hdfs:"):
+    if config.model.path.startswith("modelerscn::"):
+        import subprocess
+        model_name = config.model.path.split("::")[1]
+        local_model_path = os.path.join(local_cache_path, model_name)
+        if not os.path.exists(local_model_path):
+            print(f"Downloading model from modelers.cn: {model_name}")
+            script_path = os.path.join(os.path.dirname(__file__), "../../../../../scripts/download_model.py")
+            subprocess.run(["python", script_path, "--model_name", model_name, "--download_dir", local_cache_path], check=True)
+    elif config.model.path.startswith("hdfs:"):
         from verl.utils.fs import copy_to_local
 
         print(f"start download from {config.model.path}")
