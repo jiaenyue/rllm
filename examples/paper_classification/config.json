@@ -1,0 +1,43 @@
+{
+  "input_filepath": "data/arxiv-metadata-oai-snapshot.json",
+  "pretrain_filepath": "data/pretrain.jsonl",
+  "sft_train_filepath": "data/sft_train.jsonl",
+  "sft_validation_filepath": "data/sft_validation.jsonl",
+  "sft_full_filepath": "data/sft_full.jsonl",
+  "generate_full_sft_dataset": false,
+  "processing_percentage": 0.05,
+  "val_split_ratio": 0.5,
+  "max_words": 2048,
+  "category_to_letter": {
+    "quant-ph": "A", "physics.chem-ph": "B", "physics.atom-ph": "C",
+    "cond-mat.soft": "D", "cs.RO": "E", "cs.CL": "F", "cs.SE": "G",
+    "cs.IR": "H", "hep-th": "I", "hep-ph": "J", "physics.optics": "K",
+    "cs.AI": "L", "cs.CV": "M", "nucl-th": "N", "astro-ph": "O",
+    "math.PR": "P", "cs.OS": "Q", "eess.SP": "R", "math.OC": "S",
+    "math.DS": "T", "math.DG": "U", "math.MP": "V", "cs.MM": "W",
+    "stat.ME": "X", "math.CO": "Y", "cs.NE": "Z", "cs.LG": "L"
+  },
+  "prompt_options": "A. quant-ph\nB. physics.chem-ph\nC. physics.atom-ph\nD. cond-mat.soft\nE. cs.RO\nF. cs.CL\nG. cs.SE\nH. cs.IR\nI. hep-th\nJ. hep-ph\nK. physics.optics\nL. cs.AI\nM. cs.CV\nN. nucl-th\nO. astro-ph\nP. math.PR\nQ. cs.OS\nR. eess.SP\nS. math.OC\nT. math.DS\nU. math.DG\nV. math.MP\nW. cs.MM\nX. stat.ME\nY. math.CO\nZ. cs.NE",
+  "prompt_templates": [
+    "Based on the title '{title}', authors '{authors}', and abstract '{summary}', please determine the scientific category of this paper.\n\n{options}",
+    "What is the scientific category of the paper titled '{title}' by {authors}? Abstract: {summary}\n\n{options}",
+    "As a research analyst, classify the following paper into one of the categories below. Title: {title}. Authors: {authors}. Abstract: {summary}\n\n{options}",
+    "Categorize this paper: Title: '{title}', Abstract: '{summary}'.\n\n{options}",
+    "Your task is to classify the scientific paper with the title '{title}' and abstract '{summary}'. Please select the most appropriate category from the list.\n\n{options}",
+    "Imagine you are a librarian cataloging a new paper. Authors: {authors}. Title: '{title}'. Summary: '{summary}'. Which of these categories fits best?\n\n{options}",
+    "Paper Classification\nTitle: {title}\nAuthors: {authors}\nSummary: {summary}\nSelect a category:\n{options}",
+    "Hey, I've got a paper here. It's called '{title}' and the abstract is: '{summary}'. Can you help me figure out which category it belongs to?\n\n{options}",
+    "Please perform a detailed analysis of the following academic paper to determine its primary field of study. The paper's title is '{title}', it was written by {authors}, and the abstract reads: '{summary}'. Choose from the provided list of scientific disciplines.\n\n{options}",
+    "Here is an abstract: '{summary}'. The paper is titled '{title}' by {authors}. What is its category?\n\n{options}",
+    "Given the abstract: '{summary}', and the title '{title}', what is the paper's main category?\n\n{options}",
+    "For the paper '{title}', which of the following is the correct scientific category? Abstract: {summary}\n\n{options}",
+    "As an expert in scientific literature, what category would you assign to the paper '{title}'? Abstract: {summary}\n\n{options}",
+    "New database entry. Title: {title}. Authors: {authors}. Abstract: {summary}. Category classification required. Please select one.\n\n{options}",
+    "You are a peer reviewer. The first step is to categorize the submission. Title: '{title}', Abstract: '{summary}'. Which field does this fall into?\n\n{options}",
+    "From the content of the abstract, which is '{summary}', and the title '{title}', what would be the most logical classification for this paper?\n\n{options}",
+    "Classify the paper. Title: '{title}'. Abstract: '{summary}'. Use the list below.\n\n{options}",
+    "Consider the following information about a scientific paper. Title: '{title}'. Authors: {authors}. Abstract: '{summary}'. Now, choose its category.\n\n{options}",
+    "INPUT: {{title: '{title}', authors: '{authors}', summary: '{summary}'}} - PROCESS: Classify - OUTPUT: Select from list.\n\n{options}",
+    "Query: Classify paper. Data: Title='{title}', Summary='{summary}'.\n\n{options}"
+  ]
+}

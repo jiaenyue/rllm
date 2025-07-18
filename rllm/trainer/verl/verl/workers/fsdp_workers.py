@@ -219,7 +219,7 @@ class ActorRolloutRefWorker(Worker):
             torch_dtype = PrecisionType.to_dtype(torch_dtype)
 
         # override model kwargs
-        actor_model_config = AutoConfig.from_pretrained(local_path, trust_remote_code=trust_remote_code, attn_implementation="flash_attention_2")
+        actor_model_config = AutoConfig.from_pretrained(local_path, trust_remote_code=trust_remote_code, attn_implementation="eager")
 
         # patch for kimi-vl
         if getattr(actor_model_config, "model_type", None) == "kimi_vl":
@@ -1007,7 +1007,7 @@ class ActorRolloutRefWorker(Worker):
 
         # Update our reference to the underlying (unwrapped) module
         self.actor_module = self.actor_module_fsdp.module
-
+        
         # Recreate the rollout instance (and its sharding manager) so that it uses the updated module
         # self.rollout, self.rollout_sharding_manager = self._build_rollout()
         # TODO: we might not need this, double check
@@ -1077,7 +1077,7 @@ class ActorRolloutRefWorker(Worker):
             offload_fsdp_model_to_cpu(self.actor_module_fsdp)
 
     @register(dispatch_mode=Dispatch.ONE_TO_ALL)
-    def load_checkpoint(self, local_path, hdfs_path=None, del_local_after_load=False):
+    def load_checkpoint(self, local_path, hdfs_path=None, del_local_after_load=True):
         if self._is_offload_param:
             load_fsdp_model_to_gpu(self.actor_module_fsdp)
 
@@ -1167,7 +1167,7 @@ class CriticWorker(Worker):
 
         from transformers import AutoConfig, AutoModelForTokenClassification
 
-        critic_model_config = AutoConfig.from_pretrained(local_path, attn_implementation="flash_attention_2", trust_remote_code=config.model.get("trust_remote_code", False))
+        critic_model_config = AutoConfig.from_pretrained(local_path, attn_implementation="eager", trust_remote_code=config.model.get("trust_remote_code", False))
         critic_model_config.num_labels = 1
         # patch for kimi-vl
         if getattr(critic_model_config, "model_type", None) == "kimi_vl":
@@ -1214,7 +1214,7 @@ class CriticWorker(Worker):
             critic_module = get_peft_model(critic_module, LoraConfig(**lora_config))
 
         if self.rank == 0:
-            print_model_size(critic_module)
+            print(f"print_model_size(critic_module)")
 
         self.critic_model_config = critic_model_config
 
@@ -1246,7 +1246,7 @@ class CriticWorker(Worker):
                 use_orig_params=False,
                 auto_wrap_policy=auto_wrap_policy,
                 device_id=get_torch_device().current_device(),
-                sharding_strategy=sharding_strategy,
+                sharding_strategy=sharding_strategy,  # zero3
                 mixed_precision=mixed_precision,
                 sync_module_states=True,
                 forward_prefetch=False,
@@ -1272,7 +1272,7 @@ class CriticWorker(Worker):
             apply_fsdp2(critic_module, fsdp_kwargs, fsdp_config)
             fsdp2_load_full_state_dict(critic_module, full_state, fsdp_mesh, offload_policy)
         else:
-            raise NotImplementedError(f"Unknown strategy {config.strategy}")
+            raise NotImplementedError(f"Unknown strategy: {config.strategy}")
 
         if config.model.get("enable_activation_offload", False):
             enable_gradient_checkpointing = config.model.get("enable_gradient_checkpointing", False)
@@ -1492,7 +1492,7 @@ class RewardModelWorker(Worker):
                 pretrained_model_name_or_path=local_path,
                 config=model_config,
                 torch_dtype=torch.bfloat16,
-                attn_implementation="flash_attention_2",
+                attn_implementation="eager",
                 trust_remote_code=trust_remote_code,
             )
 
@@ -1545,9 +1545,9 @@ class RewardModelWorker(Worker):
 
     def _forward_micro_batch(self, micro_batch):
         if is_cuda_available:
-            from flash_attn.bert_padding import index_first_axis, pad_input, rearrange, unpad_input
-        elif is_npu_available:
-            from transformers.integrations.npu_flash_attention import pad_input, unpad_input, rearrange, index_first_axis
+            from xformers.ops.fmha.bert_padding import index_first_axis, pad_input, rearrange, unpad_input
+        # elif is_npu_available: # Removed this block
+        #     from transformers.integrations.npu_flash_attention import pad_input, unpad_input, rearrange, index_first_axis
 
         from verl.utils.ulysses import gather_outpus_and_unpad, ulysses_pad_and_slice_inputs
 
