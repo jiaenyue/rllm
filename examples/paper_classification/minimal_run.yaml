@@ -1,0 +1,59 @@
+# 这是一个为论文分类任务定制的最小化运行配置文件
+# 使用命令: python examples/paper_classification/train_paper_classifier.py --config-name=minimal_run
+
+defaults:
+  - sft_trainer
+  - _self_
+
+# ---------------------------------------------------
+#               数据配置 (Data Config)
+# ---------------------------------------------------
+data:
+  # 训练和验证文件的路径
+  train_files: ['data/sft_train.jsonl']
+  val_files: ['data/sft_validation.jsonl']
+  
+  # 每个GPU的批处理大小 (设置为1以降低显存占用)
+  micro_batch_size_per_gpu: 1
+
+# ---------------------------------------------------
+#               模型配置 (Model Config)
+# ---------------------------------------------------
+model:
+  # !!! 重要：请将此路径修改为您自己的模型存放路径 !!!
+  partial_pretrain: /home/jey/Study/rllm/models/xtuner_sft_model/jiaenyue/L1G4_internlm2_5-1_8b-chat_0_5
+  
+  # 启用梯度检查点以节省显存
+  enable_gradient_checkpointing: True
+
+# ---------------------------------------------------
+#             优化器配置 (Optimizer Config)
+# ---------------------------------------------------
+optimizer:
+  # 学习率
+  lr: 5e-5
+  # 预热步数
+  warmup_steps_ratio: 0.05
+
+# ---------------------------------------------------
+#               训练器配置 (Trainer Config)
+# ---------------------------------------------------
+trainer:
+  # 实验名称和项目名称
+  project_name: paper_classifier
+  experiment_name: minimal_run
+  
+  # 模型和日志的本地输出目录
+  default_local_dir: outputs/paper_classifier_minimal_run
+  
+  # 总训练步数 (设置为10以快速验证)
+  total_training_steps: 10
+  total_epochs: null # 设置为null以使用steps
+  
+  # 评估和保存的频率
+  eval_interval: 5
+  save_interval: 5
+  
+  # 梯度累积步数
+  gradient_accumulation_steps: 1
+

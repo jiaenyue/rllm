@@ -39,7 +39,7 @@ from ray import ObjectRef
 import verl.utils.torch_functional as verl_F
 from verl.utils.py_functional import convert_to_regular_types
 from verl import DataProto
-from verl.models.transformers.monkey_patch import apply_monkey_patch
+#from verl.models.transformers.monkey_patch import apply_monkey_patch
 from verl.single_controller.base import Worker
 from verl.single_controller.base.decorator import Dispatch, register
 from verl.utils import hf_processor, hf_tokenizer
@@ -260,12 +260,12 @@ class ActorRolloutRefWorker(Worker):
 
                 _apply_liger_kernel_to_instance(model=actor_module)
 
-            apply_monkey_patch(
-                model=actor_module,
-                use_remove_padding=use_remove_padding,
-                ulysses_sp_size=self.ulysses_sequence_parallel_size,
-                use_fused_kernels=use_fused_kernels,
-            )
+            # apply_monkey_patch(
+            #     model=actor_module,
+            #     use_remove_padding=use_remove_padding,
+            #     ulysses_sp_size=self.ulysses_sequence_parallel_size,
+            #     use_fused_kernels=use_fused_kernels,
+            # )
 
             # some parameters may not in torch_dtype. TODO(zhangchi.usc1992) remove this after we switch to fsdp2
             actor_module.to(torch_dtype)
@@ -1188,11 +1188,11 @@ class CriticWorker(Worker):
 
             use_remove_padding = config.model.get("use_remove_padding", False)
 
-            apply_monkey_patch(
-                model=critic_module,
-                use_remove_padding=use_remove_padding,
-                ulysses_sp_size=self.ulysses_sequence_parallel_size,
-            )
+            # apply_monkey_patch(
+            #     model=critic_module,
+            #     use_remove_padding=use_remove_padding,
+            #     ulysses_sp_size=self.ulysses_sequence_parallel_size,
+            # )
 
             # some parameters may not in torch_dtype
             critic_module.to(torch_dtype)
